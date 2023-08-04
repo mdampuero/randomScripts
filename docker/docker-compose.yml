@@ -1,0 +1,21 @@
+version: "3"
+services:
+    local_apache:
+        build: .
+        container_name: local_apache
+        extra_hosts:
+            - "dev.host.com:127.0.0.1"
+        volumes:
+            - ".:/app:cached"
+            - ../public_html/:/var/www/html/dev.host.com
+            - ./config/php.ini:/usr/local/etc/php/conf.d/php.ini
+            - ./config/dev.host.com.conf:/etc/apache2/sites-enabled/dev.host.com.conf
+        expose:
+            - 80
+        ports:
+            - 80:80
+        links: 
+            - local_memcached
+    local_memcached:
+        image: memcached:latest
+        container_name: local_memcached

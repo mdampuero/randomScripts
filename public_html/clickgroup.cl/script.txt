@@ -1,0 +1,51 @@
+<script>
+var Fn = {
+  // Valida el rut con su cadena completa "XXXXXXXX-X"
+  validaRut : function (rutCompleto) {
+    if (!/^[0-9]+[-|‐]{1}[0-9kK]{1}$/.test( rutCompleto ))
+      return false;
+    var tmp   = rutCompleto.split('-');
+    var digv  = tmp[1]; 
+    var rut   = tmp[0];
+    if ( digv == 'K' ) digv = 'k' ;
+    return (Fn.dv(rut) == digv );
+  },
+  dv : function(T){
+    var M=0,S=1;
+    for(;T;T=Math.floor(T/10))
+      S=(S+T%10*(9-M++%6))%11;
+    return S?S-1:'k';
+  }
+}
+
+var rut = document.getElementById('registrant-c_3015786');
+    rut.onfocusout = function(){
+        console.log(rut.value);
+        console.log(Fn.validaRut(rut.value));
+        if(! rut.value == ""){
+          if(! Fn.validaRut(rut.value)){
+            rut.value = '';
+            alert("Rut no válido. Recuerde que el formato debe ser '11111111-1' y confirme que el verificador es correcto. Por favor ingréselo de nuevo.");
+          }else{ 
+            validateRut()
+          }
+        }    
+    }
+
+//Api call
+const validateRut = async () => {
+    const response = await fetch('https://clickgroup.cl/validate_rut.php?eventId=125154&rut='+rut.value,{cache: "no-store"});
+    const myJson = await response.json(); 
+    if(response.status == 400){
+        alert(myJson.message);
+        rut.value='';
+        return false;
+    }else if(response.status == 200 && myJson.message == 'OK'){
+        return true;
+    }else{
+        alert('Error desconocido al intentar validar el Rut');
+        rut.value='';
+        return false;
+    }
+}
+</script>
